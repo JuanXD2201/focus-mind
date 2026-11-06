@@ -113,5 +113,4 @@ Hay 12 pruebas unitarias con Vitest en `src/ai/flows/*.test.ts`, que cubren los 
 - El "Check-in diario" del dashboard solo muestra un aviso: no guarda las respuestas.
 - `src/ai/flows/focus-list-flow.ts` es una estructura base sin lógica y la interfaz no lo usa.
 - La gestión de contenido es de solo lectura (el listado está definido en código).
-- Los testimonios de la landing son texto de ejemplo, no opiniones de usuarios reales.
 - Las actividades de IA requieren `GEMINI_API_KEY` y consumen cuota del servicio de Google.

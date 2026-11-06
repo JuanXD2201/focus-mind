@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Headphones, Gamepad2, BookHeart, Quote } from 'lucide-react';
+import { Headphones, Gamepad2, BookHeart } from 'lucide-react';
 import Image from 'next/image';
 
 export default function Home() {
@@ -46,11 +46,10 @@ export default function Home() {
                 </div>
                  <div className="flex justify-center order-first md:order-last">
                     <Image 
-                        src="https://picsum.photos/600/400"
+                        src="/hero.svg"
                         width={600}
                         height={400}
-                        alt="Persona meditando en un ambiente tranquilo"
-                        data-ai-hint="calm lake"
+                        alt="Ilustración abstracta de calma: sol sobre el agua"
                         className="rounded-xl shadow-2xl w-full max-w-md md:max-w-full"
                         priority
                     />
@@ -117,64 +116,6 @@ export default function Home() {
                  <Button asChild variant="outline">
                     <Link href="/activities">Explora todas las actividades</Link>
                  </Button>
-            </div>
-          </div>
-        </section>
-
-         <section className="py-12 md:py-24 lg:py-32">
-          <div className="container">
-             <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Lo que nuestra comunidad dice</h2>
-                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
-                    Historias de calma y claridad de personas como tú.
-                </p>
-            </div>
-             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                 <Card className="flex flex-col hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6 flex-grow">
-                        <Quote className="w-8 h-8 text-primary mb-4" />
-                        <p className="text-muted-foreground mb-4">&ldquo;Focus Mind se ha convertido en mi pequeño oasis digital. Los ejercicios de respiración me ayudan a centrarme antes de empezar el día.&rdquo;</p>
-                    </CardContent>
-                    <CardHeader className="pt-0">
-                         <div className="flex items-center gap-3">
-                            <Image src="https://picsum.photos/100/100" width={40} height={40} className="rounded-full" alt="Foto de Ana" data-ai-hint="woman portrait" />
-                             <div>
-                                <CardTitle className="text-base">Ana G.</CardTitle>
-                                <p className="text-sm text-muted-foreground">Diseñadora Gráfica</p>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
-                <Card className="flex flex-col hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6 flex-grow">
-                        <Quote className="w-8 h-8 text-primary mb-4" />
-                        <p className="text-muted-foreground mb-4">&ldquo;Me encanta el generador de cuentos. Es una forma creativa y relajante de desconectar por la noche. Una herramienta maravillosa y sin costo.&rdquo;</p>
-                    </CardContent>
-                     <CardHeader className="pt-0">
-                        <div className="flex items-center gap-3">
-                            <Image src="https://picsum.photos/101/101" width={40} height={40} className="rounded-full" alt="Foto de Carlos" data-ai-hint="man portrait"/>
-                             <div>
-                                <CardTitle className="text-base">Carlos M.</CardTitle>
-                                <p className="text-sm text-muted-foreground">Estudiante</p>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
-                 <Card className="flex flex-col hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6 flex-grow">
-                        <Quote className="w-8 h-8 text-primary mb-4" />
-                        <p className="text-muted-foreground mb-4">&ldquo;El rastreador de hábitos es simple pero muy efectivo. Me ha ayudado a ser más consistente con mis rutinas de bienestar. ¡Gracias por crear esto!&rdquo;</p>
-                    </CardContent>
-                     <CardHeader className="pt-0">
-                        <div className="flex items-center gap-3">
-                            <Image src="https://picsum.photos/102/102" width={40} height={40} className="rounded-full" alt="Foto de Sofía" data-ai-hint="woman smiling"/>
-                             <div>
-                                <CardTitle className="text-base">Sofía L.</CardTitle>
-                                <p className="text-sm text-muted-foreground">Profesora</p>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
             </div>
           </div>
         </section>
