@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Funciones auxiliares ---
+    // El rol vive en el documento users/{uid} (no en custom claims), asi que
+    // se lee de ahi. Roles validos (UserRole en auth-context.tsx):
+    // user, admin, supervisor, content_manager, data_analyst.
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function currentRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function hasRole(role) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && currentRole() == role;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isAnalyst() {
+      return hasRole('data_analyst');
+    }
+
+    function isSupervisor() {
+      return hasRole('supervisor');
+    }
+
+    // --- Usuarios ---
+    match /users/{userId} {
+      // Lectura de un perfil: el propio usuario, admin, analista y supervisor.
+      allow get: if isOwner(userId) || isAdmin() || isAnalyst() || isSupervisor();
+
+      // Listado de usuarios (estadisticas, gestion y exportacion).
+      allow list: if isAdmin() || isAnalyst();
+
+      // Autoregistro: solo con rol 'user' (evita escalada de privilegios);
+      // los roles elevados los asigna un admin (o la consola de Firebase).
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'joined'])
+        && request.resource.data.role == 'user'
+        && request.resource.data.name is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.joined == request.time;
+
+      // El usuario solo puede cambiar su nombre; un admin puede editar cualquier campo.
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name']));
+
+      allow delete: if isAdmin();
+    }
+
+    // --- Subcolecciones de cada usuario ---
+
+    // Tareas (Focus Items)
+    match /users/{userId}/focusItems/{itemId} {
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['text', 'completed', 'createdAt'])
+        && request.resource.data.text is string
+        && request.resource.data.completed is bool;
+      allow read: if isOwner(userId) || isAdmin() || isAnalyst();
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed']));
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Eventos de calendario
+    match /users/{userId}/calendarEvents/{eventId} {
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['date', 'time', 'title'])
+        && request.resource.data.title is string
+        && request.resource.data.time is string;
+      allow read: if isOwner(userId) || isAdmin() || isSupervisor() || isAnalyst();
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && request.resource.data.keys().hasOnly(['date', 'time', 'title']));
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Entradas de gratitud (inmutables para el usuario)
+    match /users/{userId}/gratitudeEntries/{entryId} {
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['text', 'createdAt'])
+        && request.resource.data.text is string;
+      allow read: if isOwner(userId) || isAdmin() || isAnalyst();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Habitos
+    match /users/{userId}/habits/{habitId} {
+      allow read: if isOwner(userId) || isAdmin() || isAnalyst();
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['text', 'completed', 'createdAt'])
+        && request.resource.data.text is string
+        && request.resource.data.completed is bool;
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed']));
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // --- Consultas de grupo de colecciones (collectionGroup) ---
+    // Necesarias para los paneles globales (conteos, graficos, eventos).
+    // Solo lectura y solo para roles con acceso global.
+    match /{path=**}/focusItems/{itemId} {
+      allow read: if isAdmin() || isAnalyst();
+    }
+
+    match /{path=**}/calendarEvents/{eventId} {
+      allow read: if isAdmin() || isAnalyst() || isSupervisor();
+    }
+
+    match /{path=**}/gratitudeEntries/{entryId} {
+      allow read: if isAdmin() || isAnalyst();
+    }
+
+    match /{path=**}/habits/{habitId} {
+      allow read: if isAdmin() || isAnalyst();
+    }
+  }
+}
